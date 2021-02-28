@@ -85,11 +85,13 @@ def exceded_days(args, customers, cost_lines, med_equipment):
     # [c.split(" ")[11] for i,c in enumerate(cost_lines) if len(c.split(" "))==13 and c.split(" ")[11]!='0.00']
     for idx,cost in enumerate(cost_lines):
         exceed_120 = cost.split(" ")
+        # print(med_equipment[-1].split('-')[1])
         if len(exceed_120) == 13 and exceed_120[11] != '0.00':
             cust_rec = parse_cust_rec(customers[idx].strip())
-            print(cust_rec)
+            # print(cust_rec, med_equipment[-1].split('-')[1])
+            print(cust_rec[3])
             with open(args.result, 'a+') as f:
-                f.write(customers[idx].strip() + '\t' + exceed_120[11] + '\n')
+                f.write(cust_rec[1].strip() + '\t' + cust_rec[0].strip() + '\t'+ med_equipment[-1].split('-')[1] + '\t' + cust_rec[3].strip() + '\t' + exceed_120[11] + '\n')
                 # f.write(cust_rec[0] + '\t' + cust_rec[1] + '\t' + cust_rec[2] + '\t' + exceed_120[11] + '\n')
             f.close()
             # print(customers[idx].strip() + '\t' + exceed_120[11])
