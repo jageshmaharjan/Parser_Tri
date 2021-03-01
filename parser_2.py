@@ -1,21 +1,6 @@
-import re
 import argparse
 from tika import parser
-
-
-def main(args):
-    '''
-    Extract the text content from the pdf file using tika library.
-    Note: The table formatting will be distorted after exporting portable document format (pdf) to editable text format
-    :param args: argument from the argparse
-    :return: n/a
-    '''
-    pdf_file_name = args.pdf_file  #"/home/jugs/PycharmProjects/ExperimentalProjects/tri_parser/resoures/marion_unbilledrevenue_report.pdf"
-    raw = parser.from_file(pdf_file_name)
-    raw_str = raw['content']
-    with open(args.raw_text, "w") as fr:
-        fr.write(raw_str)
-    j_parser(args)
+import re
 
 
 def check_duplication(line, previous_line):
@@ -89,7 +74,7 @@ def exceded_days(args, customers, cost_lines, med_equipment):
         if len(exceed_120) == 13 and exceed_120[11] != '0.00':
             cust_rec = parse_cust_rec(customers[idx].strip())
             # print(cust_rec, med_equipment[-1].split('-')[1])
-            print(cust_rec[3])
+            print(med_equipment)
             with open(args.result, 'a+') as f:
                 f.write(cust_rec[1].strip() + '\t' + cust_rec[0].strip() + '\t'+ med_equipment[idx].split('-')[1] + '\t' + cust_rec[3].strip() + '\t' + exceed_120[11] + '\n')
                 # f.write(cust_rec[0] + '\t' + cust_rec[1] + '\t' + cust_rec[2] + '\t' + exceed_120[11] + '\n')
@@ -108,7 +93,7 @@ def j_parser(args):
     :param args:
     :return:
     '''
-    landmarks = ['HOMEREACH MARIONProvider', 'Patient Total', 'Reason']
+    landmarks = ['HOMEREACH LEWIS CENTERProvider', 'Patient Total', 'Reason']
     with open(args.raw_text, "r") as rt:
         content = rt.readlines()
     content = [l for l in content if l is not '\n']
@@ -118,7 +103,7 @@ def j_parser(args):
     customers = []
     cost_lines = []
     med_equipment = []
-    for idx,line in enumerate(content):
+    for idx, line in enumerate(content):
         if rec_lines and landmarks[1] not in line:
             if len(customers) != 0 and check_duplication(line, customers[-1]):
                 rec_lines = False
@@ -126,8 +111,8 @@ def j_parser(args):
             customers.append(line)
             rec_lines = False
         if landmarks[1] in line:
-            if content[idx-1].strip().split(":")[0] == landmarks[0] == landmarks[0]:
-                med_equipment.append(content[idx-14])
+            if content[idx - 1].strip().split(":")[0] == landmarks[0] == landmarks[0]:
+                med_equipment.append(content[idx - 14])
             else:
                 med_equipment.append(content[idx - 1])
             cost_lines.append(line)
@@ -139,6 +124,15 @@ def j_parser(args):
     customers.remove(customers[-1])
 
     exceded_days(args, customers, cost_lines, med_equipment)
+
+
+def main(args):
+    pdf_file_name = args.pdf_file  #"/home/jugs/PycharmProjects/ExperimentalProjects/tri_parser/resoures/marion_unbilledrevenue_report.pdf"
+    raw = parser.from_file(pdf_file_name)
+    raw_str = raw['content']
+    with open(args.raw_text, "w") as fr:
+        fr.write(raw_str)
+    j_parser(args)
 
 
 if __name__ == "__main__":
